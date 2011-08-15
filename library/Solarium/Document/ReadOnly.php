@@ -56,6 +56,13 @@ class Solarium_Document_ReadOnly
      */
     protected $_fields;
 
+    /**
+     * Helper instance
+     *
+     * @var Solarium_Document_Helper
+     */
+    protected static $_helper;
+
 
     /**
      * Constructor
@@ -174,6 +181,22 @@ class Solarium_Document_ReadOnly
     public function offsetGet($offset)
     {
         return $this->__get($offset);
+    }
+
+    /**
+     * Get a helper instance
+     *
+     * Uses lazy loading: the helper is instantiated on first use
+     *
+     * @return Solarium_Document_Helper
+     */
+    public function getHelper()
+    {
+        if (self::$_helper == NULL) {
+            self::$_helper = new Solarium_Document_Helper();
+        }
+
+        return self::$_helper;
     }
 
 }
