@@ -56,23 +56,20 @@ class Solarium_Client_RequestBuilder_MoreLikeThis extends Solarium_Client_Reques
         $request = new Solarium_Client_Request;
         $request->setHandler($query->getHandler());
 
+        if ($query->isStream()) {
+            $request->setRawData($query->getQuery());
+            $request->setMethod(Solarium_Client_Request::METHOD_POST);
+            $request->addHeader('Content-Type: text/plain; charset=utf-8');
+        } else {
+            $request->addParam('q', $query->getQuery());
+        }
         // add basic params to request
-        $request->addParam('q', $query->getQuery());
-        $request->addParam('mlt.match.offset', $query->getStart());
-        $request->addParam('rows', $query->getRows());
-        $request->addParam('mlt.fl', implode(',', $query->getFields()));
         $request->addParam('wt', 'json');
+        $request->addParam('rows', $query->getRows());
+        $request->addParam('fl', implode(',', $query->getFields()));
         $request->addParam('mlt.interestingTerms', $query->getInterestingTerms());
         $request->addParam('mlt.match.include', $query->getMatchInclude());
-
-        // add sort fields to request
-        $sort = array();
-        foreach ($query->getSorts() AS $field => $order) {
-            $sort[] = $field . ' ' . $order;
-        }
-        if (count($sort) !== 0) {
-            $request->addParam('sort', implode(',', $sort));
-        }
+        $request->addParam('mlt.match.offset', $query->getStart());
 
         // add filterqueries to request
         $filterQueries = $query->getFilterQueries();

@@ -50,12 +50,6 @@ class Solarium_Query_MoreLikeThis extends Solarium_Query
 {
 
     /**
-     * Solr sort modes
-     */
-    const SORT_DESC = 'desc';
-    const SORT_ASC = 'asc';
-
-    /**
      * Query components
      */
     const COMPONENT_DISMAX = 'dismax';
@@ -84,9 +78,11 @@ class Solarium_Query_MoreLikeThis extends Solarium_Query
         'query'         => '*:*',
         'start'         => 0,
         'rows'          => 10,
-        'mlt.fl'        => '*,score',
+        'fl'            => '*,score',
+        'mlt.fl'        => 'text',
         'mlt.interestingTerms' => 'none',
         'mlt.match.include' => 'false',
+        'stream'        => false
     );
 
     /**
@@ -120,13 +116,6 @@ class Solarium_Query_MoreLikeThis extends Solarium_Query
     protected $_fields = array();
 
     /**
-     * Items to sort on
-     *
-     * @var array
-     */
-    protected $_sorts = array();
-
-    /**
      * Filterqueries
      *
      * @var array
@@ -158,9 +147,6 @@ class Solarium_Query_MoreLikeThis extends Solarium_Query
                 case 'filterquery':
                     $this->addFilterQueries($value);
                     break;
-                case 'sort':
-                    $this->addSorts($value);
-                    break;
                 case 'fields':
                     $this->addFields($value);
                     break;
@@ -184,11 +170,24 @@ class Solarium_Query_MoreLikeThis extends Solarium_Query
      * escaping of user input.
      *
      * @param string $query
+     * @param boolean $stream true for POST requests where the content-type is
+     * not "application/x-www-form-urlencoded", the raw POST body is passed as a stream.
+     * @link http://wiki.apache.org/solr/ContentStream ContentStream
      * @return Solarium_Query_Select Provides fluent interface
      */
-    public function setQuery($query)
+    public function setQuery($query, $stream = false)
     {
-        return $this->_setOption('query', trim($query));
+        return $this->_setOption('stream', $stream)
+                    ->_setOption('query', trim($query));
+    }
+
+    /**
+     * @see setQuery
+     * @return boolean
+     */
+    public function isStream()
+    {
+        return $this->getOption('stream');
     }
 
     /**
@@ -414,89 +413,6 @@ class Solarium_Query_MoreLikeThis extends Solarium_Query
     {
         $this->clearFields();
         $this->addFields($fields);
-
-        return $this;
-    }
-
-    /**
-     * Add a sort
-     *
-     * @param string $sort
-     * @param string $order
-     * @return Solarium_Query_Select Provides fluent interface
-     */
-    public function addSort($sort, $order)
-    {
-        $this->_sorts[$sort] = $order;
-
-        return $this;
-    }
-
-    /**
-     * Add multiple sorts
-     *
-     * The input array must contain sort items as keys and the order as values.
-     *
-     * @param array $sorts
-     * @return Solarium_Query_Select Provides fluent interface
-     */
-    public function addSorts(array $sorts)
-    {
-        foreach ($sorts AS $sort => $order) {
-            $this->addSort($sort, $order);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Remove a sort
-     *
-     * @param string $sort
-     * @return Solarium_Query_Select Provides fluent interface
-     */
-    public function removeSort($sort)
-    {
-        if (isset($this->_sorts[$sort])) {
-            unset($this->_sorts[$sort]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Remove all sorts
-     *
-     * @return Solarium_Query_Select Provides fluent interface
-     */
-    public function clearSorts()
-    {
-        $this->_sorts = array();
-        return $this;
-    }
-
-    /**
-     * Get a list of the sorts
-     *
-     * @return array
-     */
-    public function getSorts()
-    {
-        return $this->_sorts;
-    }
-
-    /**
-     * Set multiple sorts
-     *
-     * This overwrites any existing sorts
-     *
-     * @param array $sorts
-     * @return Solarium_Query_Select Provides fluent interface
-     */
-    public function setSorts($sorts)
-    {
-        $this->clearSorts();
-        $this->addSorts($sorts);
 
         return $this;
     }
