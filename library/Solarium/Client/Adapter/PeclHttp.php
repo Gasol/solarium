@@ -101,7 +101,8 @@ class Solarium_Client_Adapter_PeclHttp extends Solarium_Client_Adapter
      *
      * adapt Solarium_Client_Request to HttpRequest
      *
-     * @link http://us.php.net/manual/en/http.constants.php HTTP Predefined Constant
+     * {@link http://us.php.net/manual/en/http.constants.php
+     * HTTP Predefined Constant}
      *
      * @param Solarium_Client_Request $request
      * @param HttpRequest
