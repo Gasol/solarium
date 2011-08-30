@@ -1,6 +1,8 @@
 <?php
 /**
- * Copyright 2011 Bas de Nooijer. All rights reserved.
+ * Copyright 2011 Bas de Nooijer.
+ * Copyright 2011 Gasol Wu. PIXNET Digital Media Corporation.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,6 +31,7 @@
  * policies, either expressed or implied, of the copyright holder.
  *
  * @copyright Copyright 2011 Bas de Nooijer <solarium@raspberry.nl>
+ * @copyright Copyright 2011 Gasol Wu <gasol.wu@gmail.com>
  * @license http://github.com/basdenooijer/solarium/raw/master/COPYING
  * @link http://www.solarium-project.org/
  *
@@ -42,55 +45,40 @@
  * @package Solarium
  * @subpackage Client
  */
-class Solarium_Client_RequestBuilder_MoreLikeThis extends Solarium_Client_RequestBuilder
+class Solarium_Client_RequestBuilder_MoreLikeThis
+    extends Solarium_Client_RequestBuilder_Select
 {
 
     /**
      * Build request for a MoreLikeThis query
      *
-     * @param Solarium_Query_Select $query
+     * @param Solarium_Query_MoreLikeThis $query
      * @return Solarium_Client_Request
      */
     public function build($query)
     {
-        $request = new Solarium_Client_Request;
-        $request->setHandler($query->getHandler());
-
-        if ($query->isStream()) {
-            $request->setRawData($query->getQuery());
-            $request->setMethod(Solarium_Client_Request::METHOD_POST);
-            $request->addHeader('Content-Type: text/plain; charset=utf-8');
-        } else {
-            $request->addParam('q', $query->getQuery());
-        }
-        // add basic params to request
-        $request->addParam('wt', 'json');
-        $request->addParam('rows', $query->getRows());
-        $request->addParam('fl', implode(',', $query->getFields()));
+        $request = parent::build($query);
+        
+        // add mlt params to request
         $request->addParam('mlt.interestingTerms', $query->getInterestingTerms());
         $request->addParam('mlt.match.include', $query->getMatchInclude());
         $request->addParam('mlt.match.offset', $query->getStart());
+        $request->addParam('mlt.fl', $query->getMltFields());
+        $request->addParam('mlt.mintf', $query->getMinimumTermFrequency());
+        $request->addParam('mlt.mindf', $query->getMinimumDocumentFrequency());
+        $request->addParam('mlt.minwl', $query->getMinimumWordLength());
+        $request->addParam('mlt.maxwl', $query->getMaximumWordLength());
+        $request->addParam('mlt.maxqt', $query->getMaximumQueryTerms());
+        $request->addParam('mlt.maxntp', $query->getMaximumNumberOfTokens());
+        $request->addParam('mlt.boost', $query->getBoost());
+        $request->addParam('mlt.qf', $query->getQueryFields());
 
-        // add filterqueries to request
-        $filterQueries = $query->getFilterQueries();
-        if (count($filterQueries) !== 0) {
-            foreach ($filterQueries AS $filterQuery) {
-                $fq = $this->renderLocalParams(
-                    $filterQuery->getQuery(),
-                    array('tag' => $filterQuery->getTags())
-                );
-                $request->addParam('fq', $fq);
-            }
-        }
-
-        // add components to request
-        $types = $query->getComponentTypes();
-        foreach ($query->getComponents() as $component) {
-            $componentBuilderClass = $types[$component->getType()]['requestbuilder'];
-            if (!empty($componentBuilderClass)) {
-                $componentBuilder = new $componentBuilderClass;
-                $request = $componentBuilder->build($component, $request);
-            }
+        // convert query to stream if necessary
+        if (true === $query->getQueryStream()) {
+            $request->removeParam('q');
+            $request->setRawData($query->getQuery());
+            $request->setMethod(Solarium_Client_Request::METHOD_POST);
+            $request->addHeader('Content-Type: text/plain; charset=utf-8');
         }
         
         return $request;

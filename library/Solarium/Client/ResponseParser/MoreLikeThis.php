@@ -1,6 +1,7 @@
 <?php
 /**
- * Copyright 2011 Bas de Nooijer. All rights reserved.
+ * Copyright 2011 Gasol Wu. PIXNET Digital Media Corporation.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,7 +29,7 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of the copyright holder.
  *
- * @copyright Copyright 2011 Bas de Nooijer <solarium@raspberry.nl>
+ * @copyright Copyright 2011 Gasol Wu <gasol.wu@gmail.com>
  * @license http://github.com/basdenooijer/solarium/raw/master/COPYING
  * @link http://www.solarium-project.org/
  *
@@ -48,7 +49,7 @@ class Solarium_Client_ResponseParser_MoreLikeThis extends Solarium_Client_Respon
     /**
      * Get result data for the response
      *
-     * @param Solarium_Result_Select $result
+     * @param Solarium_Result_MoreLikeThis $result
      * @return array
      */
     public function parse($result)
@@ -56,8 +57,8 @@ class Solarium_Client_ResponseParser_MoreLikeThis extends Solarium_Client_Respon
         $data = $result->getData();
         $query = $result->getQuery();
 
-        $postResult = parent::parse($result);
-        if (isset($data['interestingTerms']) and 'none' != $query->getInterestingTerms()) {
+        $parseResult = parent::parse($result);
+        if (isset($data['interestingTerms']) && 'none' != $query->getInterestingTerms()) {
             $terms = $data['interestingTerms'];
             if ('details' == $query->getInterestingTerms()) {
                 $tempTerms = array();
@@ -66,9 +67,18 @@ class Solarium_Client_ResponseParser_MoreLikeThis extends Solarium_Client_Respon
                 }
                 $terms = $tempTerms;
             }
-            $postResult['interestingTerms'] = $terms;
+            $parseResult['interestingTerms'] = $terms;
         }
-        return $postResult;
+
+        if (isset($data['match']['docs'][0]) && true == $query->getMatchInclude()) {
+            $matchData = $data['match']['docs'][0];
+            
+            $documentClass = $query->getOption('documentclass');
+            $fields = (array)$matchData;
+            $parseResult['match'] = new $documentClass($fields);
+        }
+
+        return $parseResult;
     }
 
 }

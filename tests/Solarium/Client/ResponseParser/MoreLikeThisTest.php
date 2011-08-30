@@ -27,85 +27,52 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of the copyright holder.
- *
- * @copyright Copyright 2011 Bas de Nooijer <solarium@raspberry.nl>
- * @license http://github.com/basdenooijer/solarium/raw/master/COPYING
- * @link http://www.solarium-project.org/
- *
- * @package Solarium
- * @subpackage Result
  */
 
-/**
- * Select component morelikethis result
- *
- * @package Solarium
- * @subpackage Result
- */
-class Solarium_Result_Select_MoreLikeThis
-    implements IteratorAggregate, Countable
+class Solarium_Client_ResponseParser_MoreLikeThisTest extends PHPUnit_Framework_TestCase
 {
 
-    /**
-     * Result array
-     *
-     * @var array
-     */
-    protected $_results;
-    
-    /**
-     * Constructor
-     *
-     * @param array $results
-     * @return void
-     */
-    public function __construct($results)
+    public function testParse()
     {
-        $this->_results = $results;
+        $data = array(
+            'response' => array(
+                'docs' => array(
+                    array('fieldA' => 1, 'fieldB' => 'Test'),
+                    array('fieldA' => 2, 'fieldB' => 'Test2')
+                ),
+                'numFound' => 503
+            ),
+            'responseHeader' => array(
+                'status' => 1,
+                'QTime' => 13,
+            ),
+            'interestingTerms' => array(
+                'key1', 'value1', 'key2', 'value2'
+            ),
+            'match' => array(
+                'docs' => array(
+                    array('fieldA' => 5, 'fieldB' => 'Test5'),
+                ),
+            ),
+        );
+
+        $query = new Solarium_Query_MoreLikeThis();
+        $query->setInterestingTerms('details');
+        $query->setMatchInclude(true);
+
+        $resultStub = $this->getMock('Solarium_Result_MoreLikeThis', array(), array(), '', false);
+        $resultStub->expects($this->any())
+             ->method('getData')
+             ->will($this->returnValue($data));
+        $resultStub->expects($this->any())
+             ->method('getQuery')
+             ->will($this->returnValue($query));
+
+        $parser = new Solarium_Client_ResponseParser_MoreLikeThis;
+        $result = $parser->parse($resultStub);
+
+        $this->assertEquals(array('key1' => 'value1', 'key2' => 'value2'), $result['interestingTerms']);
+        $this->assertEquals(5, $result['match']->fieldA);
     }
 
-    /**
-     * Get a result by key
-     *
-     * @param mixed $key
-     * @return Solarium_Result_Select_MoreLikeThis_Result|null
-     */
-    public function getResult($key)
-    {
-        if (isset($this->_results[$key])) {
-            return $this->_results[$key];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Get all results
-     *
-     * @return array
-     */
-    public function getResults()
-    {
-        return $this->_results;
-    }
-    
-    /**
-     * IteratorAggregate implementation
-     *
-     * @return ArrayIterator
-     */
-    public function getIterator()
-    {
-        return new ArrayIterator($this->_results);
-    }
-
-    /**
-     * Countable implementation
-     *
-     * @return int
-     */
-    public function count()
-    {
-        return count($this->_results);
-    }
 }

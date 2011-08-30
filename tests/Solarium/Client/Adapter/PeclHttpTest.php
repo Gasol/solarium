@@ -27,85 +27,57 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of the copyright holder.
- *
- * @copyright Copyright 2011 Bas de Nooijer <solarium@raspberry.nl>
- * @license http://github.com/basdenooijer/solarium/raw/master/COPYING
- * @link http://www.solarium-project.org/
- *
- * @package Solarium
- * @subpackage Result
  */
 
-/**
- * Select component morelikethis result
- *
- * @package Solarium
- * @subpackage Result
- */
-class Solarium_Result_Select_MoreLikeThis
-    implements IteratorAggregate, Countable
+class Solarium_Client_Adapter_PeclHttpTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Solarium_Client_Adapter_PeclHttp
+     */
+    protected $_adapter;
 
-    /**
-     * Result array
-     *
-     * @var array
-     */
-    protected $_results;
-    
-    /**
-     * Constructor
-     *
-     * @param array $results
-     * @return void
-     */
-    public function __construct($results)
+    public function setUp()
     {
-        $this->_results = $results;
-    }
-
-    /**
-     * Get a result by key
-     *
-     * @param mixed $key
-     * @return Solarium_Result_Select_MoreLikeThis_Result|null
-     */
-    public function getResult($key)
-    {
-        if (isset($this->_results[$key])) {
-            return $this->_results[$key];
-        } else {
-            return null;
+        if (!function_exists('http_get')) {
+            $this->markTestSkipped('Pecl_http not available, skipping PeclHttp adapter tests');
         }
+
+        $this->_adapter = new Solarium_Client_Adapter_PeclHttp();
     }
 
-    /**
-     * Get all results
-     *
-     * @return array
-     */
-    public function getResults()
+    public function testCheck()
     {
-        return $this->_results;
-    }
-    
-    /**
-     * IteratorAggregate implementation
-     *
-     * @return ArrayIterator
-     */
-    public function getIterator()
-    {
-        return new ArrayIterator($this->_results);
+        $data = 'data';
+        $headers = array('X-dummy: data');
+
+        // this should be ok, no exception
+        $this->_adapter->check($data, $headers);
+
+        $data = '';
+        $headers = array();
+
+        $this->setExpectedException('Solarium_Exception');
+        $this->_adapter->check($data, $headers);
     }
 
-    /**
-     * Countable implementation
-     *
-     * @return int
-     */
-    public function count()
+    public function testExecute()
     {
-        return count($this->_results);
+        $headers = array('HTTP/1.0 200 OK');
+        $body = 'data';
+        $data = array($body, $headers);
+
+        $request = new Solarium_Client_Request();
+
+        $mock = $this->getMock('Solarium_Client_Adapter_PeclHttp', array('_getData'));
+        $mock->expects($this->once())
+                 ->method('_getData')
+                 ->with($request)
+                 ->will($this->returnValue($data));
+
+        $response = $mock->execute($request);
+
+        $this->assertEquals($body,$response->getBody());
+        $this->assertEquals($headers,$response->getHeaders());
     }
+
 }

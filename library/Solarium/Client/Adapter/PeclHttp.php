@@ -1,6 +1,7 @@
 <?php
 /**
- * Copyright 2011 Bas de Nooijer. All rights reserved.
+ * Copyright 2011 Gasol Wu. PIXNET Digital Media Corporation.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,9 +29,12 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of the copyright holder.
  *
- * @copyright Copyright 2011 Bas de Nooijer <solarium@raspberry.nl>
+ * @copyright Copyright 2011 Gasol Wu <gasol.wu@gmail.com>
  * @license http://github.com/basdenooijer/solarium/raw/master/COPYING
  * @link http://www.solarium-project.org/
+ *
+ * @package Solarium
+ * @subpackage Client
  */
 
 /**
@@ -42,6 +46,23 @@
  */
 class Solarium_Client_Adapter_PeclHttp extends Solarium_Client_Adapter
 {
+
+    /**
+     * Initialization hook
+     *
+     * Checks the availability of pecl_http
+     */
+    protected function _init()
+    {
+        // @codeCoverageIgnoreStart
+        if (!function_exists('http_get')) {
+           throw new Solarium_Exception('Pecl_http is not available, install it to use the PeclHttp adapter');
+        }
+
+        parent::_init();
+        // @codeCoverageIgnoreEnd
+    }
+
     /**
      * Execute a Solr request using the Pecl Http
      *
@@ -62,8 +83,10 @@ class Solarium_Client_Adapter_PeclHttp extends Solarium_Client_Adapter
             throw new Solarium_Client_HttpException($error);
         }
 
-        return new Solarium_Client_Response($httpMessage->getBody(),
-            $this->_getRawHeaders($httpMessage));
+        return new Solarium_Client_Response(
+            $httpMessage->getBody(),
+            $this->_getRawHeaders($httpMessage)
+        );
     }
 
     /**
@@ -100,7 +123,7 @@ class Solarium_Client_Adapter_PeclHttp extends Solarium_Client_Adapter
      * adapt Solarium_Client_Request to HttpRequest
      *
      * {@link http://us.php.net/manual/en/http.constants.php
-     *  HTTP Predefined Constant}
+     * HTTP Predefined Constant}
      *
      * @param Solarium_Client_Request $request
      * @param HttpRequest
@@ -120,8 +143,9 @@ class Solarium_Client_Adapter_PeclHttp extends Solarium_Client_Adapter
             $method = HTTP_METH_HEAD;
             break;
         default:
-            throw new Solarium_Exception('Unsupported method: ' .
-                $request->getMethod());
+            throw new Solarium_Exception(
+                'Unsupported method: ' . $request->getMethod()
+            );
         }
 
         $options = $this->_createOptions($request);
@@ -144,6 +168,7 @@ class Solarium_Client_Adapter_PeclHttp extends Solarium_Client_Adapter
      */
     protected function _createOptions($request)
     {
+        // @codeCoverageIgnoreStart
         $options = array(
             'timeout' => $this->getTimeout()
         );

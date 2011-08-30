@@ -71,6 +71,10 @@ class Solarium_Client extends Solarium_Configurable
      * Querytype ping
      */
     const QUERYTYPE_PING = 'ping';
+
+    /**
+     * Querytype morelikethis
+     */
     const QUERYTYPE_MORELIKETHIS = 'mlt';
 
     /**
@@ -104,7 +108,7 @@ class Solarium_Client extends Solarium_Configurable
             'responseparser' => 'Solarium_Client_ResponseParser_Ping'
         ),
         self::QUERYTYPE_MORELIKETHIS => array(
-            'query'						=> 'Solarium_Query_MoreLikeThis',
+            'query'           => 'Solarium_Query_MoreLikeThis',
             'requestbuilder'  => 'Solarium_Client_RequestBuilder_MoreLikeThis',
             'responseparser'  => 'Solarium_Client_ResponseParser_MoreLikeThis'
         ),
@@ -145,11 +149,6 @@ class Solarium_Client extends Solarium_Configurable
     {
         foreach ($this->_options AS $name => $value) {
             switch ($name) {
-                case 'adapteroptions':
-                    $this->_setOption('adapteroptions', $value);
-                    $adapter = $this->getAdapter();
-                    if ($adapter) $adapter->setOptions($value);
-                    break;
                 case 'querytype':
                     $this->registerQueryTypes($value);
                     break;
@@ -574,14 +573,14 @@ class Solarium_Client extends Solarium_Configurable
      * $result = $client->moreLikeThis($query);
      * </code>
      *
-     * @see Solarium_Query_Select
-     * @see Solarium_Result_Select
+     * @see Solarium_Query_MoreLikeThis
+     * @see Solarium_Result_MoreLikeThis
      *
      * @internal This is a convenience method that forwards the query to the
      *  execute method, thus allowing for an easy to use and clean API.
      *
-     * @param Solarium_Query_Select $query
-     * @return Solarium_Result_Select
+     * @param Solarium_Query_MoreLikeThis $query
+     * @return Solarium_Result_MoreLikeThis
      */
     public function moreLikeThis($query)
     {
@@ -629,7 +628,7 @@ class Solarium_Client extends Solarium_Configurable
      * Create a MoreLikeThis query instance
      *
      * @param mixed $options
-     * @return Solarium_Query_Select
+     * @return Solarium_Query_MoreLikeThis
      */
     public function createMoreLikeThis($options = null)
     {
