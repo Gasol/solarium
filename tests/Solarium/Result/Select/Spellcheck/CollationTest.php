@@ -27,83 +27,59 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of the copyright holder.
- *
- * @copyright Copyright 2011 Bas de Nooijer <solarium@raspberry.nl>
- * @license http://github.com/basdenooijer/solarium/raw/master/COPYING
- * @link http://www.solarium-project.org/
- *
- * @package Solarium
- * @subpackage Result
  */
 
-/**
- * Select component spellcheck result item
- *
- * @package Solarium
- * @subpackage Result
- */
-class Solarium_Result_Select_Spellcheck_Result implements IteratorAggregate, Countable
+class Solarium_Result_Select_Spellcheck_CollationTest extends PHPUnit_Framework_TestCase
 {
 
     /**
-     * Fields array
-     *
-     * @var array
+     * @var Solarium_Result_Select_Spellcheck_Collation
      */
-    protected $_fields;
+    protected $_result;
 
-    /**
-     * Constructor
-     *
-     * @param array $fields
-     * @return void
-     */
-    public function __construct($fields)
+    protected $_corrections, $_hits, $_query;
+
+    public function setUp()
     {
-        $this->_fields = $fields;
+        $this->_corrections = array(
+            'key1' => 'content1',
+            'key2' => 'content2',
+        );
+        $this->_hits = 1;
+        $this->_query = 'dummy query';
+
+        $this->_result = new Solarium_Result_Select_Spellcheck_Collation($this->_query, $this->_hits, $this->_corrections);
     }
 
-    /**
-     * Get highlights for all fields
-     *
-     * @return array
-     */
-    public function getFields()
+    public function testGetQuery()
     {
-        return $this->_fields;
+        $this->assertEquals($this->_query, $this->_result->getQuery());
     }
 
-    /**
-     * Get highlights for a single field
-     *
-     * @return array
-     */
-    public function getField($key)
+    public function testGetHits()
     {
-        if (isset($this->_fields[$key])) {
-            return $this->_fields[$key];
-        } else {
-            return array();
+        $this->assertEquals($this->_hits, $this->_result->getHits());
+    }
+
+    public function testGetCorrections()
+    {
+         $this->assertEquals($this->_corrections, $this->_result->getCorrections());
+    }
+
+    public function testIterator()
+    {
+        $items = array();
+        foreach($this->_result AS $key => $item)
+        {
+            $items[$key] = $item;
         }
-    }
-    
-    /**
-     * IteratorAggregate implementation
-     *
-     * @return ArrayIterator
-     */
-    public function getIterator()
-    {
-        return new ArrayIterator($this->_fields);
+
+        $this->assertEquals($this->_corrections, $items);
     }
 
-    /**
-     * Countable implementation
-     *
-     * @return int
-     */
-    public function count()
+    public function testCount()
     {
-        return count($this->_fields);
+        $this->assertEquals(count($this->_corrections), count($this->_result));
     }
+
 }

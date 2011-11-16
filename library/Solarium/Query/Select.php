@@ -82,7 +82,7 @@ class Solarium_Query_Select extends Solarium_Query
     /**
      * Query component spellcheck
      */
-	const COMPONENT_SPELLCHECK = 'spellcheck';
+    const COMPONENT_SPELLCHECK = 'spellcheck';
 
     /**
      * Query component grouping
@@ -564,7 +564,7 @@ class Solarium_Query_Select extends Solarium_Query
         }
 
         if (array_key_exists($key, $this->_filterQueries)) {
-            if($this->_filterQueries[$key] === $filterQuery) {
+            if ($this->_filterQueries[$key] === $filterQuery) {
                 //double add calls for the same FQ are ignored
                 //@todo add trigger_error with a notice?
             } else {
@@ -765,8 +765,7 @@ class Solarium_Query_Select extends Solarium_Query
     public function removeComponent($component)
     {
         if (is_object($component)) {
-            foreach ($this->_components as $key => $instance)
-            {
+            foreach ($this->_components as $key => $instance) {
                 if ($instance === $component) {
                     unset($this->_components[$key]);
                     break;
@@ -854,7 +853,7 @@ class Solarium_Query_Select extends Solarium_Query
         return $this->getComponent(Solarium_Query_Select::COMPONENT_GROUPING, true);
     }
 
-    /*
+    /**
      * Get a spellcheck component instance
      *
      * This is a convenience method that maps presets to getComponent
@@ -866,7 +865,7 @@ class Solarium_Query_Select extends Solarium_Query
         return $this->getComponent(Solarium_Query_Select::COMPONENT_SPELLCHECK, true);
     }
 
-    /*
+    /**
      * Get a DistributedSearch component instance
      *
      * This is a convenience method that maps presets to getComponent

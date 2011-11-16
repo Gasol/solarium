@@ -48,13 +48,13 @@ class Solarium_Client_ResponseParser_Analysis_Field extends Solarium_Client_Resp
     /**
      * Parse response data
      *
-     * @param Solarium_Result_Update $result
+     * @param Solarium_Result $result
      * @return array
      */
     public function parse($result)
     {
         $data = $result->getData();
-        
+
         if (isset($data['analysis'])) {
             $items = $this->_parseAnalysis($data['analysis']);
         } else {
@@ -77,7 +77,7 @@ class Solarium_Client_ResponseParser_Analysis_Field extends Solarium_Client_Resp
     protected function _parseAnalysis($data)
     {
         $types = array();
-        foreach($data as $documentKey => $documentData) {
+        foreach ($data as $documentKey => $documentData) {
             $fields = $this->_parseTypes($documentData);
             $types[] = new Solarium_Result_Analysis_List($documentKey, $fields);
         }
@@ -100,18 +100,18 @@ class Solarium_Client_ResponseParser_Analysis_Field extends Solarium_Client_Resp
             foreach ($fieldData as $typeKey => $typeData) {
 
                 // fix for extra level for key fields
-                if(count($typeData) == 1){
+                if (count($typeData) == 1) {
                     $typeData = current($typeData);
                 }
 
                 $counter = 0;
                 $classes = array();
-                while(isset($typeData[$counter]) && isset($typeData[$counter+1])) {
+                while (isset($typeData[$counter]) && isset($typeData[$counter+1])) {
                     $class = $typeData[$counter];
                     $analysis = $typeData[$counter+1];
 
                     $items = array();
-                    foreach($analysis AS $itemData) {
+                    foreach ($analysis AS $itemData) {
                         $items[] = new Solarium_Result_Analysis_Item($itemData);
                     }
 

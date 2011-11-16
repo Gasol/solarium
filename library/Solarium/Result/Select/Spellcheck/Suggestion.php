@@ -33,44 +33,100 @@
  * @link http://www.solarium-project.org/
  *
  * @package Solarium
- * @subpackage Client
+ * @subpackage Result
  */
 
 /**
- * Add select component Spellcheck to the request
+ * Select component spellcheck suggestion result
  *
  * @package Solarium
- * @subpackage Client
+ * @subpackage Result
  */
-class Solarium_Client_RequestBuilder_Select_Component_Spellcheck
+class Solarium_Result_Select_Spellcheck_Suggestion
 {
 
     /**
-     * Add request settings for Spellcheck
+     * Constructor
      *
-     * @param Solarium_Query_Select_Component_Spellcheck $component
-     * @param Solarium_Client_Request $request
-     * @return Solarium_Client_Request
+     * @param int $numFound
+     * @param int $startOffset
+     * @param int $endOffset
+     * @param int $originalFrequency
+     * @param string $word
+     * @param int $frequency
      */
-    public function build($component, $request)
+    public function __construct($numFound, $startOffset, $endOffset, $originalFrequency, $word, $frequency)
     {
-        // enable spellcheck
-        $request->addParam('spellcheck', 'true');
-
-        $request->addParam('spellcheck.q', $component->getQuery());
-        $request->addParam('spellcheck.build', $component->getBuild());
-        $request->addParam('spellcheck.reload', $component->getReload());
-        $request->addParam('spellcheck.dictionary', $component->getDictionary());
-        $request->addParam('spellcheck.count', $component->getCount());
-        $request->addParam('spellcheck.onlyMorePopular', $component->getOnlyMorePopular());
-        $request->addParam('spellcheck.extendedResults', $component->getExtendedResults());
-        $request->addParam('spellcheck.collate', $component->getCollate());
-        $request->addParam('spellcheck.maxCollations', $component->getMaxCollations());
-        $request->addParam('spellcheck.maxCollationTries', $component->getMaxCollationTries());
-        $request->addParam('spellcheck.maxCollationEvaluations', $component->getMaxCollationEvaluations());
-        $request->addParam('spellcheck.collateExtendedResults', $component->getCollateExtendedResults());
-        $request->addParam('spellcheck.accuracy', $component->getAccuracy());
-
-        return $request;
+        $this->_numFound = $numFound;
+        $this->_startOffset = $startOffset;
+        $this->_endOffset = $endOffset;
+        $this->_originalFrequency = $originalFrequency;
+        $this->_word = $word;
+        $this->_frequency = $frequency;
     }
+
+    /**
+     * Get numFound value
+     *
+     * @return int
+     */
+    public function getNumFound()
+    {
+        return $this->_numFound;
+    }
+
+    /**
+     * Get startOffset value
+     *
+     * @return int
+     */
+    public function getStartOffset()
+    {
+        return $this->_startOffset;
+    }
+
+    /**
+     * Get endOffset value
+     *
+     * @return int
+     */
+    public function getEndOffset()
+    {
+        return $this->_endOffset;
+    }
+
+    /**
+     * Get originalFrequency value
+     *
+     * Only available if CollateExtendedResults was enabled in your query
+     *
+     * @return int
+     */
+    public function getOriginalFrequency()
+    {
+        return $this->_originalFrequency;
+    }
+
+    /**
+     * Get word
+     *
+     * @return string
+     */
+    public function getWord()
+    {
+        return $this->_word;
+    }
+
+    /**
+     * Get frequency value
+     *
+     * Only available if CollateExtendedResults was enabled in your query
+     *
+     * @return int
+     */
+    public function getFrequency()
+    {
+        return $this->_frequency;
+    }
+
 }

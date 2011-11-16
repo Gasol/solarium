@@ -27,38 +27,60 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of the copyright holder.
- *
- * @copyright Copyright 2011 Bas de Nooijer <solarium@raspberry.nl>
- * @license http://github.com/basdenooijer/solarium/raw/master/COPYING
- * @link http://www.solarium-project.org/
- *
- * @package Solarium
- * @subpackage Client
  */
 
-/**
- * Build a ping request
- *
- * @package Solarium
- * @subpackage Client
- */
-class Solarium_Client_RequestBuilder_Ping extends Solarium_Client_RequestBuilder
+class Solarium_Result_Select_Spellcheck_SuggestionTest extends PHPUnit_Framework_TestCase
 {
 
     /**
-     * Build request for a ping query
-     *
-     * @param Solarium_Query_Ping $query
-     * @return Solarium_Client_Request
+     * @var Solarium_Result_Select_Spellcheck_Suggestion
      */
-    public function build($query)
-    {
-        $request = new Solarium_Client_Request;
-        $request->setHandler($query->getHandler());
-        $request->setMethod(Solarium_Client_Request::METHOD_GET);
-        $request->addParam('wt', 'json');
+    protected $_result;
 
-        return $request;
+    protected $_numFound, $_startOffset, $_endOffset, $_originalFrequency, $_word, $_frequency;
+
+    public function setUp()
+    {
+        $this->_numFound = 1;
+        $this->_startOffset = 2;
+        $this->_endOffset = 3;
+        $this->_originalFrequency = 4;
+        $this->_word = 'dummyword';
+        $this->_frequency = 5;
+
+        $this->_result = new Solarium_Result_Select_Spellcheck_Suggestion(
+            $this->_numFound, $this->_startOffset, $this->_endOffset, $this->_originalFrequency, $this->_word, $this->_frequency
+        );
+    }
+
+    public function testGetNumFound()
+    {
+        $this->assertEquals($this->_numFound, $this->_result->getNumFound());
+    }
+
+    public function testGetStartOffset()
+    {
+        $this->assertEquals($this->_startOffset, $this->_result->getStartOffset());
+    }
+
+    public function testGetEndOffset()
+    {
+        $this->assertEquals($this->_endOffset, $this->_result->getEndOffset());
+    }
+
+    public function testGetOriginalFrequency()
+    {
+         $this->assertEquals($this->_originalFrequency, $this->_result->getOriginalFrequency());
+    }
+
+    public function testGetWord()
+    {
+         $this->assertEquals($this->_word, $this->_result->getWord());
+    }
+
+    public function testGetFrequency()
+    {
+         $this->assertEquals($this->_frequency, $this->_result->getFrequency());
     }
 
 }

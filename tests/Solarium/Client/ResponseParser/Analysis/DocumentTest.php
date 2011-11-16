@@ -27,38 +27,39 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of the copyright holder.
- *
- * @copyright Copyright 2011 Bas de Nooijer <solarium@raspberry.nl>
- * @license http://github.com/basdenooijer/solarium/raw/master/COPYING
- * @link http://www.solarium-project.org/
- *
- * @package Solarium
- * @subpackage Client
  */
 
-/**
- * Build a ping request
- *
- * @package Solarium
- * @subpackage Client
- */
-class Solarium_Client_RequestBuilder_Ping extends Solarium_Client_RequestBuilder
+class Solarium_Client_ResponseParser_Analysis_DocumentTest extends PHPUnit_Framework_TestCase
 {
 
-    /**
-     * Build request for a ping query
-     *
-     * @param Solarium_Query_Ping $query
-     * @return Solarium_Client_Request
-     */
-    public function build($query)
+    public function testParse()
     {
-        $request = new Solarium_Client_Request;
-        $request->setHandler($query->getHandler());
-        $request->setMethod(Solarium_Client_Request::METHOD_GET);
-        $request->addParam('wt', 'json');
+        $data = array(
+            'analysis' => array(
+                'key1' => 'data1',
+                'key2' => 'data2',
+            ),
+            'responseHeader' => array(
+                'status' => 1,
+                'QTime' => 5
+            )
+        );
 
-        return $request;
+        $resultStub = $this->getMock('Solarium_Result', array(), array(), '', false);
+        $resultStub->expects($this->once())
+             ->method('getData')
+             ->will($this->returnValue($data));
+
+        $parserStub = $this->getMock('Solarium_Client_ResponseParser_Analysis_Document',array('_parseTypes'));
+        $parserStub->expects($this->exactly(2))
+             ->method('_parseTypes')
+             ->will($this->returnValue('dummy'));
+
+        $result = $parserStub->parse($resultStub);
+
+
+        $this->assertEquals(count($data['analysis']), count($result['items']));
+        $this->assertEquals('key2', $result['items'][1]->getName());
     }
 
 }

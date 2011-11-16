@@ -27,39 +27,69 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of the copyright holder.
- *
- * @copyright Copyright 2011 Bas de Nooijer <solarium@raspberry.nl>
- * @license http://github.com/basdenooijer/solarium/raw/master/COPYING
- * @link http://www.solarium-project.org/
- *
- * @package Solarium
- * @subpackage Client
  */
 
-/**
- * Parse document analysis response data
- *
- * @package Solarium
- * @subpackage Client
- */
-class Solarium_Client_ResponseParser_Analysis_Document extends Solarium_Client_ResponseParser_Analysis_Field
+class Solarium_Result_Select_SpellcheckTest extends PHPUnit_Framework_TestCase
 {
 
     /**
-     * Parse implementation
-     *
-     * @param array $data
-     * @return array
+     * @var Solarium_Result_Select_Spellcheck
      */
-    protected function _parseAnalysis($data)
+    protected $_result;
+
+    protected $_suggestions, $_collation, $_correctlySpelled;
+
+    public function setUp()
     {
-        $documents = array();
-        foreach ($data as $documentKey => $documentData) {
-            $fields = $this->_parseTypes($documentData);
-            $documents[] = new Solarium_Result_Analysis_List($documentKey, $fields);
+        $this->_suggestions = array(
+            'key1' => 'content1',
+            'key2' => 'content2',
+        );
+        $this->_collation = 'dummy1';
+        $this->_correctlySpelled = false;
+
+        $this->_result = new Solarium_Result_Select_Spellcheck($this->_suggestions, $this->_collation, $this->_correctlySpelled);
+    }
+
+    public function testGetCollation()
+    {
+        $this->assertEquals($this->_collation, $this->_result->getCollation());
+    }
+
+    public function testGetCorrectlySpelled()
+    {
+        $this->assertEquals($this->_correctlySpelled, $this->_result->getCorrectlySpelled());
+    }
+
+    public function testGetSuggestion()
+    {
+         $this->assertEquals($this->_suggestions['key1'], $this->_result->getSuggestion('key1'));
+    }
+
+    public function testGetInvalidSuggestion()
+    {
+         $this->assertEquals(null, $this->_result->getSuggestion('key3'));
+    }
+
+    public function testGetSuggestions()
+    {
+         $this->assertEquals($this->_suggestions, $this->_result->getSuggestions());
+    }
+
+    public function testIterator()
+    {
+        $items = array();
+        foreach($this->_result AS $key => $item)
+        {
+            $items[$key] = $item;
         }
 
-        return $documents;
+        $this->assertEquals($this->_suggestions, $items);
+    }
+
+    public function testCount()
+    {
+        $this->assertEquals(count($this->_suggestions), count($this->_result));
     }
 
 }

@@ -33,44 +33,102 @@
  * @link http://www.solarium-project.org/
  *
  * @package Solarium
- * @subpackage Client
+ * @subpackage Result
  */
 
 /**
- * Add select component Spellcheck to the request
+ * Select component spellcheck collation result
  *
  * @package Solarium
- * @subpackage Client
+ * @subpackage Result
  */
-class Solarium_Client_RequestBuilder_Select_Component_Spellcheck
+class Solarium_Result_Select_Spellcheck_Collation implements IteratorAggregate, Countable
 {
 
     /**
-     * Add request settings for Spellcheck
-     *
-     * @param Solarium_Query_Select_Component_Spellcheck $component
-     * @param Solarium_Client_Request $request
-     * @return Solarium_Client_Request
+     * @var string
      */
-    public function build($component, $request)
+    protected $_query;
+
+    /**
+     * @var int
+     */
+    protected $_hits;
+
+    /**
+     * @var array
+     */
+    protected $_corrections;
+
+    /**
+     * Constructor
+     *
+     * @param string $query
+     * @param int|null $hits
+     * @param array $corrections
+     */
+    public function __construct($query, $hits, $corrections)
     {
-        // enable spellcheck
-        $request->addParam('spellcheck', 'true');
+        $this->_query = $query;
+        $this->_hits = $hits;
+        $this->_corrections = $corrections;
+    }
 
-        $request->addParam('spellcheck.q', $component->getQuery());
-        $request->addParam('spellcheck.build', $component->getBuild());
-        $request->addParam('spellcheck.reload', $component->getReload());
-        $request->addParam('spellcheck.dictionary', $component->getDictionary());
-        $request->addParam('spellcheck.count', $component->getCount());
-        $request->addParam('spellcheck.onlyMorePopular', $component->getOnlyMorePopular());
-        $request->addParam('spellcheck.extendedResults', $component->getExtendedResults());
-        $request->addParam('spellcheck.collate', $component->getCollate());
-        $request->addParam('spellcheck.maxCollations', $component->getMaxCollations());
-        $request->addParam('spellcheck.maxCollationTries', $component->getMaxCollationTries());
-        $request->addParam('spellcheck.maxCollationEvaluations', $component->getMaxCollationEvaluations());
-        $request->addParam('spellcheck.collateExtendedResults', $component->getCollateExtendedResults());
-        $request->addParam('spellcheck.accuracy', $component->getAccuracy());
+    /**
+     * Get query string
+     *
+     * @return string
+     */
+    public function getQuery()
+    {
+        return $this->_query;
+    }
 
-        return $request;
+    /**
+     * Get hit count
+     *
+     * Only available if ExtendedResults was enabled in your query
+     *
+     * @return int|null
+     */
+    public function getHits()
+    {
+        return $this->_hits;
+    }
+
+    /**
+     * Get all corrrections
+     *
+     * Only available if ExtendedResults was enabled in your query
+     *
+     * @return array
+     */
+    public function getCorrections()
+    {
+        return $this->_corrections;
+    }
+
+    /**
+     * IteratorAggregate implementation
+     *
+     * Only available if ExtendedResults was enabled in your query
+     *
+     * @return ArrayIterator
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->_corrections);
+    }
+
+    /**
+     * Countable implementation
+     *
+     * Only available if ExtendedResults was enabled in your query
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->_corrections);
     }
 }
