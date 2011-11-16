@@ -34,11 +34,16 @@ class Solarium_Result_PingTest extends PHPUnit_Framework_TestCase
 
     public function testGetStatus()
     {
-        $ping = new Solarium_Result_Ping();
+        $body = <<<EOF
+{"responseHeader":{"status":0,"QTime":6,"params":{"wt":"json","q":"test"}},"response":{"numFound":0,"start":0,"docs":[]}}
+EOF;
+        $headers = array('HTTP/1.1 200 OK', 'Content-Type: application/json');
+        $response = new Solarium_Client_Response($body, $headers);
+        $ping = new Solarium_Result_Ping(null, null, $response);
         $this->assertEquals(
             0,
             $ping->getStatus()
         );
     }
-    
+
 }
